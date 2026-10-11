@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { query, withTransaction, isConfigured } from '../../../lib/db';
 import { generateStudentCode, createSession } from '../../../lib/session';
-import { OTHER_STORE, MAX_PREFS } from '../../../lib/stores';
+import { isKnownStore, MAX_PREFS } from '../../../lib/stores';
 
 export const dynamic = 'force-dynamic';
 
+// Liste fermée : seuls les 36 Darty de la promotion sont acceptés.
 function cleanStore(raw) {
   const v = String(raw || '').trim().replace(/\s+/g, ' ');
-  if (!v) return null;
-  if (v.length > 120) return null;
-  return v;
+  return isKnownStore(v) ? v : null;
 }
 
 export async function POST(request) {
@@ -41,19 +40,18 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Indique une adresse mail valide.' }, { status: 400 });
   }
   if (!currentStore) {
-    return NextResponse.json({ error: 'Indique ton Darty actuel.' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Choisis ton Darty actuel dans la liste.' },
+      { status: 400 }
+    );
   }
 
-  // "Autre Darty" est un libellé d'interface : il faut le nom réel du magasin.
-  if (currentStore === OTHER_STORE) {
-    return NextResponse.json({ error: 'Précise le nom de ton Darty.' }, { status: 400 });
-  }
 
   const seen = new Set([currentStore.toLowerCase()]);
   const preferences = [];
   for (const raw of rawPrefs) {
     const v = cleanStore(raw);
-    if (!v || v === OTHER_STORE) continue;
+    if (!v) continue;
     const key = v.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);
@@ -63,7 +61,7 @@ export async function POST(request) {
 
   if (preferences.length === 0) {
     return NextResponse.json(
-      { error: 'Indique au moins un Darty souhaité, différent du tien.' },
+      { error: 'Choisis au moins un Darty souhaité dans la liste, différent du tien.' },
       { status: 400 }
     );
   }

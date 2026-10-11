@@ -3,22 +3,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import './globals.css';
-import { STORES_BY_VILLE, storeLabel, OTHER_STORE, MAX_PREFS } from '../lib/stores';
+import { STORES_BY_ZONE, storeLabel, MAX_PREFS } from '../lib/stores';
 
 const EMPTY_PREFS = Array(MAX_PREFS).fill('');
 
 function StoreOptions() {
   return (
     <>
-      {Object.entries(STORES_BY_VILLE).map(([group, stores]) => (
-        <optgroup key={group} label={group}>
+      {Object.entries(STORES_BY_ZONE).map(([zone, stores]) => (
+        <optgroup key={zone} label={zone}>
           {stores.map((st) => {
             const label = storeLabel(st);
             return <option key={label} value={label}>{label}</option>;
           })}
         </optgroup>
       ))}
-      <option value={OTHER_STORE}>{OTHER_STORE}…</option>
     </>
   );
 }
@@ -28,25 +27,18 @@ export default function Home() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [currentStore, setCurrentStore] = useState('');
-  const [currentOther, setCurrentOther] = useState('');
   const [prefs, setPrefs] = useState(EMPTY_PREFS);
-  const [prefOthers, setPrefOthers] = useState(EMPTY_PREFS);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [code, setCode] = useState('');
-
-  const resolve = (value, other) => (value === OTHER_STORE ? other.trim() : value);
 
   async function submit(e) {
     e.preventDefault();
     setError('');
 
-    const resolvedCurrent = resolve(currentStore, currentOther);
-    const resolvedPrefs = prefs
-      .map((p, i) => resolve(p, prefOthers[i]))
-      .filter(Boolean);
+    const resolvedPrefs = prefs.filter(Boolean);
 
-    if (!resolvedCurrent) return setError('Indique ton Darty actuel.');
+    if (!currentStore) return setError('Indique ton Darty actuel.');
     if (resolvedPrefs.length === 0) return setError('Indique au moins un Darty souhaité.');
 
     setBusy(true);
@@ -57,7 +49,7 @@ export default function Home() {
         body: JSON.stringify({
           fullName,
           email,
-          currentStore: resolvedCurrent,
+          currentStore,
           preferences: resolvedPrefs,
         }),
       });
@@ -133,11 +125,6 @@ export default function Home() {
             <option value="">Choisir…</option>
             <StoreOptions />
           </select>
-          {currentStore === OTHER_STORE && (
-            <input type="text" required maxLength={120} value={currentOther}
-                   style={{ marginTop: 8 }} placeholder="Nom du magasin"
-                   onChange={(e) => setCurrentOther(e.target.value)} />
-          )}
         </div>
 
         <h2 style={{ marginTop: 28 }}>Darty souhaités</h2>
@@ -157,15 +144,6 @@ export default function Home() {
               <option value="">{i === 0 ? 'Choisir…' : '—'}</option>
               <StoreOptions />
             </select>
-            {value === OTHER_STORE && (
-              <input type="text" maxLength={120} value={prefOthers[i]}
-                     style={{ marginTop: 8 }} placeholder="Nom du magasin"
-                     onChange={(e) => {
-                       const next = [...prefOthers];
-                       next[i] = e.target.value;
-                       setPrefOthers(next);
-                     }} />
-            )}
           </div>
         ))}
 

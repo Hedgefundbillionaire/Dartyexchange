@@ -4,9 +4,10 @@
 
 ## Ce que fait l'app
 
-- **`/`** — formulaire d'inscription : 36 Darty préchargés (ville + magasin),
-  option « Autre Darty » en saisie libre, adresse mail obligatoire, jusqu'à
-  5 souhaits classés.
+- **`/`** — formulaire d'inscription : les 36 Darty de la promotion
+  (magasin + ville), adresse mail obligatoire, jusqu'à 5 souhaits classés.
+  **Liste fermée** : seuls ces 36 magasins sont acceptés, côté client comme
+  côté serveur. La liste vit dans `lib/stores.js`, qui en est l'unique source.
   Renvoie un **code personnel** (ex. `WQ2X-6D2Q`) qui sert de login.
 - **`/espace`** — l'étudiant entre son code, voit sa proposition d'échange et
   **accepte ou refuse**. Les autres participants restent anonymes.

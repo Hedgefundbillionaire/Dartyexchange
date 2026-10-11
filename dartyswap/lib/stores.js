@@ -1,53 +1,50 @@
-// Les 36 Darty préchargés dans le formulaire, identifiés par ville + magasin.
-// + l'option "Autre Darty" (saisie libre).
-
-export const OTHER_STORE = 'Autre Darty';
+// Les 36 Darty de la promotion, identifiés par magasin + ville.
+// Liste fermée : l'étudiant ne peut choisir que dans celle-ci.
+// Source : liste d'affectation fournie par l'administration.
 
 export const STORES = [
   // Paris
-  { magasin: 'Rivoli', ville: 'Paris 1er' },
-  { magasin: 'République', ville: 'Paris 3e' },
-  { magasin: 'Madeleine', ville: 'Paris 8e' },
-  { magasin: 'Saint-Lazare', ville: 'Paris 8e' },
-  { magasin: 'Nation', ville: 'Paris 12e' },
-  { magasin: 'Daumesnil', ville: 'Paris 12e' },
-  { magasin: 'BNF', ville: 'Paris 13e' },
-  { magasin: 'Italie', ville: 'Paris 13e' },
-  { magasin: 'Alésia', ville: 'Paris 14e' },
-  { magasin: 'Beaugrenelle', ville: 'Paris 15e' },
-  { magasin: 'Passy', ville: 'Paris 16e' },
-  { magasin: 'Ternes', ville: 'Paris 17e' },
-  { magasin: 'Montmartre', ville: 'Paris 18e' },
-  { magasin: 'Belleville', ville: 'Paris 19e' },
-  { magasin: 'Gambetta', ville: 'Paris 20e' },
-  // Hauts-de-Seine
-  { magasin: 'La Défense', ville: 'Courbevoie' },
-  { magasin: 'Boulogne', ville: 'Boulogne-Billancourt' },
-  { magasin: 'Levallois', ville: 'Levallois-Perret' },
-  { magasin: 'Neuilly', ville: 'Neuilly-sur-Seine' },
-  { magasin: 'Issy', ville: 'Issy-les-Moulineaux' },
-  { magasin: 'Châtenay', ville: 'Châtenay-Malabry' },
-  // Seine-Saint-Denis
-  { magasin: 'Saint-Denis', ville: 'Saint-Denis' },
-  { magasin: 'Bobigny', ville: 'Bobigny' },
-  { magasin: 'Rosny', ville: 'Rosny-sous-Bois' },
-  { magasin: 'Montreuil', ville: 'Montreuil' },
-  { magasin: 'Aulnay', ville: 'Aulnay-sous-Bois' },
-  // Val-de-Marne
-  { magasin: 'Créteil', ville: 'Créteil' },
+  { magasin: 'Alésia', ville: 'Paris' },
+  { magasin: 'Batignolles', ville: 'Paris' },
+  { magasin: 'Beaugrenelle', ville: 'Paris' },
+  { magasin: 'Belleville', ville: 'Paris' },
+  { magasin: 'BNF', ville: 'Paris' },
+  { magasin: 'Forum', ville: 'Paris' },
+  { magasin: 'Madeleine', ville: 'Paris' },
+  { magasin: 'Montparnasse', ville: 'Paris' },
+  { magasin: 'Nation', ville: 'Paris' },
+  { magasin: 'Passy 2', ville: 'Paris' },
+  { magasin: 'République', ville: 'Paris' },
+  { magasin: 'Saint-Ouen', ville: 'Paris' },
+  { magasin: 'Ternes', ville: 'Paris' },
+  // Petite couronne
+  { magasin: 'Arcueil', ville: 'Arcueil' },
+  { magasin: 'Bondy', ville: 'Bondy' },
   { magasin: 'Bonneuil', ville: 'Bonneuil-sur-Marne' },
-  { magasin: 'Vincennes', ville: 'Vincennes' },
-  { magasin: 'Ivry', ville: 'Ivry-sur-Seine' },
-  { magasin: 'Thiais', ville: 'Thiais' },
+  { magasin: 'Boulogne', ville: 'Boulogne-Billancourt' },
+  { magasin: 'Châtillon', ville: 'Châtillon' },
+  { magasin: 'Créteil', ville: 'Créteil' },
+  { magasin: 'Fresnes', ville: 'Fresnes' },
+  { magasin: 'Gennevilliers', ville: 'Gennevilliers' },
+  { magasin: 'La Défense', ville: 'Puteaux' },
+  { magasin: 'Ormesson', ville: 'Chennevières-sur-Marne' },
+  { magasin: 'Parinor', ville: 'Aulnay-sous-Bois' },
+  { magasin: 'Rosny', ville: 'Rosny-sous-Bois' },
+  { magasin: 'Rungis', ville: 'Thiais' },
   // Grande couronne
-  { magasin: 'Vélizy', ville: 'Vélizy-Villacoublay' },
-  { magasin: 'Saint-Germain', ville: 'Saint-Germain-en-Laye' },
+  { magasin: 'Clos du Chêne', ville: 'Montévrain' },
+  { magasin: 'Herblay', ville: 'Herblay-sur-Seine' },
+  { magasin: 'Orgeval', ville: 'Villennes-sur-Seine' },
+  { magasin: 'Parly 2', ville: 'Le Chesnay' },
+  { magasin: 'Plaisir', ville: 'Plaisir' },
+  { magasin: 'Saint-Brice', ville: 'Saint-Brice-sous-Forêt' },
+  { magasin: 'Sainte-Geneviève', ville: 'Sainte-Geneviève-des-Bois' },
+  { magasin: 'Sartrouville', ville: 'Sartrouville' },
+  { magasin: 'Torcy', ville: 'Marne-la-Vallée' },
   { magasin: 'Villebon', ville: 'Villebon-sur-Yvette' },
-  { magasin: 'Massy', ville: 'Massy' },
-  { magasin: 'Cergy', ville: 'Cergy' },
 ];
 
-/** Libellé unique d'un magasin : "Darty Rivoli — Paris 1er". */
+/** Libellé unique : "Darty Alésia — Paris", ou "Darty Créteil" si ville = magasin. */
 export function storeLabel(store) {
   if (store.magasin === store.ville) return `Darty ${store.magasin}`;
   return `Darty ${store.magasin} — ${store.ville}`;
@@ -55,16 +52,17 @@ export function storeLabel(store) {
 
 export const STORE_LABELS = STORES.map(storeLabel);
 
-/** Villes dans l'ordre, pour grouper la liste déroulante. */
-export const STORES_BY_VILLE = STORES.reduce((acc, s) => {
-  const group = s.ville.startsWith('Paris') ? 'Paris' : 'Île-de-France';
-  if (!acc[group]) acc[group] = [];
-  acc[group].push(s);
+/** Regroupement pour la liste déroulante. */
+export const STORES_BY_ZONE = STORES.reduce((acc, s) => {
+  const zone = s.ville === 'Paris' ? 'Paris' : 'Île-de-France';
+  if (!acc[zone]) acc[zone] = [];
+  acc[zone].push(s);
   return acc;
 }, {});
 
 export const MAX_PREFS = 5;
 
+/** Liste fermée : tout magasin hors liste est refusé. */
 export function isKnownStore(label) {
   return STORE_LABELS.includes(label);
 }
