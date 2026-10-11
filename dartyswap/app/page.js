@@ -112,11 +112,6 @@ export default function Home() {
           <input id="c" type="email" required maxLength={120} value={email}
                  placeholder="prenom.nom@hec.edu"
                  onChange={(e) => setEmail(e.target.value)} />
-          <p className="hint">
-            Sert à t’identifier et à te joindre si l’administration en a besoin.
-            Jamais utilisée pour t’envoyer quoi que ce soit, et jamais affichée
-            aux autres étudiants.
-          </p>
         </div>
 
         <div className="field">
