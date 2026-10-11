@@ -21,6 +21,8 @@ function Login({ onDone }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Code incorrect. Réessaie.');
+      // Code universel : on bascule sur la vue partagée anonymisée.
+      if (data.shared) { window.location.href = '/resultat'; return; }
       onDone();
     } catch (err) {
       setError(err.message);
@@ -36,7 +38,8 @@ function Login({ onDone }) {
           <Link href="/" className="brand">Darty<b>Swap</b></Link>
           <h1 style={{ fontSize: 26, margin: '18px 0 8px' }}>Mon résultat</h1>
           <p className="sub" style={{ marginBottom: 24 }}>
-            Entre le code personnel reçu à l’inscription.
+            Entre le code personnel reçu à l’inscription, ou le code partagé
+            par l’administration pour voir tous les échanges.
           </p>
         </div>
         {error && <div className="msg err">{error}</div>}
@@ -44,7 +47,8 @@ function Login({ onDone }) {
           <div className="field" style={{ marginBottom: 14 }}>
             <label htmlFor="code">Code personnel</label>
             <input id="code" type="text" autoFocus placeholder="XXXX-XXXX"
-                   value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
+                   autoCapitalize="none" autoCorrect="off" spellCheck="false"
+                   value={code} onChange={(e) => setCode(e.target.value)} />
           </div>
           <button type="submit" disabled={busy} style={{ width: '100%' }}>
             {busy ? 'Vérification…' : 'Voir mon résultat'}
