@@ -1,43 +1,31 @@
 import { NextResponse } from 'next/server';
-import { query, getRun, getRunExchanges, statusLabel } from '../../../../lib/db';
+import { loadAll, publishedRun, exchangesOf, statusLabel } from '../../../../lib/store';
 import { readSession } from '../../../../lib/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  // L'API est protégée au même titre que la page.
   if (!readSession('resultat')) {
     return NextResponse.json({ error: 'Non autorisé.' }, { status: 401 });
   }
-
   try {
-    const run = await getRun({ publishedOnly: true });
-    if (!run) {
-      return NextResponse.json({ published: false });
-    }
+    const all = await loadAll();
+    const run = publishedRun(all);
+    if (!run) return NextResponse.json({ published: false });
 
-    // includeIdentity: false — ni noms, ni contacts, ni codes ne sortent d'ici.
-    const exchanges = await getRunExchanges(run.id, { includeIdentity: false });
-
-    const { rows: counts } = await query(`
-      SELECT
-        (SELECT COUNT(*) FROM students) AS total,
-        (SELECT COUNT(DISTINCT student_id) FROM preferences) AS requesting
-    `);
-
-    const movable = new Set();
-    for (const e of exchanges) for (const p of e.participants) movable.add(p.studentId);
+    const exchanges = exchangesOf(all, run.id);
+    const movable = new Set(exchanges.flatMap((e) => e.participants.map((p) => p.studentId)));
 
     return NextResponse.json({
       published: true,
-      publishedAt: run.created_at,
+      publishedAt: run.createdAt,
       stats: {
-        totalStudents: Number(counts[0].total),
-        studentsRequesting: Number(counts[0].requesting),
+        totalStudents: all.students.length,
+        studentsRequesting: all.students.filter((s) => s.preferences.length > 0).length,
         possibleExchanges: exchanges.length,
         studentsCanMove: movable.size,
       },
-      // Identifiants anonymisés, recalculés par échange.
+      // Identifiants anonymisés : ni noms, ni mails, ni codes ne sortent d'ici.
       exchanges: exchanges.map((e) => ({
         index: e.index,
         size: e.size,

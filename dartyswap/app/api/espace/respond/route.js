@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query, getRun } from '../../../../lib/db';
+import { loadAll, publishedRun, respond } from '../../../../lib/store';
 import { readSession } from '../../../../lib/session';
 
 export const dynamic = 'force-dynamic';
@@ -10,36 +10,35 @@ export async function POST(request) {
 
   let body;
   try { body = await request.json(); } catch { body = {}; }
-  const exchangeId = Number(body.exchangeId);
   const action = String(body.action || '');
+  const m = /^(\d+)-(\d+)$/.exec(String(body.exchangeId || ''));
 
-  if (!Number.isInteger(exchangeId) || !['accept', 'refuse'].includes(action)) {
+  if (!m || !['accept', 'refuse'].includes(action)) {
     return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
   }
+  const runId = Number(m[1]);
+  const exchange = Number(m[2]);
 
   try {
-    // On n'autorise la réponse que sur un run publié, et seulement sur
-    // un échange dont l'étudiant est réellement participant.
-    const run = await getRun({ publishedOnly: true });
-    if (!run) {
-      return NextResponse.json({ error: 'Résultats non publiés.' }, { status: 403 });
-    }
-
-    const { rowCount } = await query(
-      `UPDATE exchange_participants p
-          SET response = $1, responded_at = now()
-        WHERE p.student_id = $2
-          AND p.exchange_id = $3
-          AND EXISTS (
-            SELECT 1 FROM exchanges e
-             WHERE e.id = p.exchange_id AND e.run_id = $4
-          )`,
-      [action === 'accept' ? 'accepted' : 'refused', session.id, exchangeId, run.id]
-    );
-
-    if (!rowCount) {
+    // Réponse acceptée uniquement sur le calcul publié, et seulement si
+    // l'étudiant participe réellement à cet échange.
+    const all = await loadAll();
+    const run = publishedRun(all);
+    if (!run) return NextResponse.json({ error: 'Résultats non publiés.' }, { status: 403 });
+    if (run.id !== runId) {
       return NextResponse.json({ error: 'Échange introuvable.' }, { status: 404 });
     }
+    const isParticipant = all.parts.some(
+      (p) => p.runId === runId && p.exchange === exchange && p.studentId === session.id
+    );
+    if (!isParticipant) {
+      return NextResponse.json({ error: 'Échange introuvable.' }, { status: 404 });
+    }
+
+    await respond({
+      runId, exchange, studentId: session.id,
+      response: action === 'accept' ? 'accepted' : 'refused',
+    });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'Service indisponible.' }, { status: 503 });

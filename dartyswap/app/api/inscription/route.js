@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query, withTransaction, isConfigured } from '../../../lib/db';
+import { addStudent, isConfigured } from '../../../lib/store';
 import { generateStudentCode, createSession } from '../../../lib/session';
 import { isKnownStore, MAX_PREFS } from '../../../lib/stores';
 
@@ -13,16 +13,11 @@ function cleanStore(raw) {
 
 export async function POST(request) {
   if (!isConfigured()) {
-    return NextResponse.json(
-      { error: "La base de données n'est pas encore configurée." },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "La base de données n'est pas encore configurée." }, { status: 503 });
   }
 
   let body;
-  try {
-    body = await request.json();
-  } catch {
+  try { body = await request.json(); } catch {
     return NextResponse.json({ error: 'Requête invalide.' }, { status: 400 });
   }
 
@@ -34,18 +29,12 @@ export async function POST(request) {
   if (fullName.length < 2 || fullName.length > 100) {
     return NextResponse.json({ error: 'Indique ton nom complet.' }, { status: 400 });
   }
-  // Adresse obligatoire : elle identifie l'étudiant et permet à
-  // l'administration de le joindre. Aucun email n'est jamais envoyé par l'app.
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) {
     return NextResponse.json({ error: 'Indique une adresse mail valide.' }, { status: 400 });
   }
   if (!currentStore) {
-    return NextResponse.json(
-      { error: 'Choisis ton Darty actuel dans la liste.' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Choisis ton Darty actuel dans la liste.' }, { status: 400 });
   }
-
 
   const seen = new Set([currentStore.toLowerCase()]);
   const preferences = [];
@@ -58,7 +47,6 @@ export async function POST(request) {
     preferences.push(v);
     if (preferences.length >= MAX_PREFS) break;
   }
-
   if (preferences.length === 0) {
     return NextResponse.json(
       { error: 'Choisis au moins un Darty souhaité dans la liste, différent du tien.' },
@@ -67,40 +55,24 @@ export async function POST(request) {
   }
 
   try {
-    const student = await withTransaction(async (client) => {
-      let code;
-      let row;
-      // Collision de code quasi impossible, mais on réessaie proprement.
-      for (let attempt = 0; attempt < 5; attempt++) {
-        code = generateStudentCode();
-        const res = await client.query(
-          `INSERT INTO students (code, full_name, email, current_store)
-           VALUES ($1,$2,$3,$4)
-           ON CONFLICT (code) DO NOTHING
-           RETURNING id, code`,
-          [code, fullName, email, currentStore]
-        );
-        if (res.rows[0]) { row = res.rows[0]; break; }
+    let code, id;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      code = generateStudentCode();
+      try {
+        ({ id } = await addStudent({ code, fullName, email, currentStore, preferences }));
+        break;
+      } catch (e) {
+        if (e.code !== 'CODE_DUPLIQUE') throw e;
       }
-      if (!row) throw new Error('Impossible de générer un code.');
+    }
+    if (!id) throw new Error('Impossible de générer un code.');
 
-      for (let i = 0; i < preferences.length; i++) {
-        await client.query(
-          `INSERT INTO preferences (student_id, rank, store) VALUES ($1,$2,$3)`,
-          [row.id, i, preferences[i]]
-        );
-      }
-      return row;
-    });
-
-    // Connexion immédiate : pas d'email, donc le code est montré une fois à l'écran.
-    createSession('student', { id: student.id }, 60 * 60 * 24 * 30);
-
-    return NextResponse.json({ ok: true, code: student.code });
+    createSession('student', { id }, 60 * 60 * 24 * 30);
+    return NextResponse.json({ ok: true, code });
   } catch (e) {
     if (e.code === 'BASE_NON_CONFIGUREE') {
-      return NextResponse.json({ error: "Base non configurée." }, { status: 503 });
+      return NextResponse.json({ error: 'Base non configurée.' }, { status: 503 });
     }
-    return NextResponse.json({ error: "Erreur à l'enregistrement." }, { status: 500 });
+    return NextResponse.json({ error: "Erreur à l'enregistrement. Réessaie." }, { status: 500 });
   }
 }
