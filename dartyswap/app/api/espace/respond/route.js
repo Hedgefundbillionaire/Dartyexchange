@@ -27,7 +27,7 @@ export async function POST(request) {
 
     const { rowCount } = await query(
       `UPDATE exchange_participants p
-          SET response = $1
+          SET response = $1, responded_at = now()
         WHERE p.student_id = $2
           AND p.exchange_id = $3
           AND EXISTS (

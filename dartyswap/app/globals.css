@@ -155,6 +155,7 @@ button.small { padding: 7px 13px; font-size: 13.5px; }
 .tag {
   display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .04em;
   text-transform: uppercase; padding: 3px 9px; border-radius: 99px;
+  white-space: nowrap;
   background: var(--surface-2); color: var(--muted); border: 1px solid var(--border);
 }
 .tag.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
@@ -184,3 +185,42 @@ button.small { padding: 7px 13px; font-size: 13.5px; }
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
 a:hover { opacity: .8; }
 a.brand, a:has(button) { text-decoration: none; }
+
+/* Tableau type tableur (page /admin/inscriptions) */
+.wrap-full { max-width: 1500px; margin: 0 auto; padding: 40px 16px 80px; }
+
+.tablewrap {
+  margin-top: 14px;
+  overflow: auto;
+  max-height: 72vh;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+table.sheet { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 13px; }
+
+table.sheet th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface-2); color: var(--muted);
+  text-align: left; font-size: 12px; font-weight: 700;
+  letter-spacing: .03em; text-transform: uppercase;
+  padding: 9px 10px; white-space: nowrap; cursor: pointer;
+  border-bottom: 1px solid var(--border-strong);
+}
+table.sheet th:hover { color: var(--text); }
+table.sheet th .arrow { color: var(--accent); }
+
+table.sheet td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+table.sheet tbody tr:last-child td { border-bottom: 0; }
+table.sheet tbody tr:nth-child(even) { background: var(--surface-2); }
+table.sheet tbody tr:hover { background: var(--accent-soft); }
+
+table.sheet td.num, table.sheet th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.sheet td.mono { font-family: var(--mono); font-size: 12px; letter-spacing: .02em; white-space: nowrap; }
+table.sheet td.nowrap { white-space: nowrap; }
+table.sheet td.faint { color: var(--faint); }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import '../globals.css';
 
 function Login({ onDone }) {
@@ -123,10 +124,15 @@ export default function Admin() {
     <main className="wrap-wide">
       <div className="row">
         <h1 style={{ margin: 0 }}>Administration</h1>
-        <button className="ghost small" onClick={async () => {
-          await fetch('/api/admin/logout', { method: 'POST' });
-          setState({ phase: 'login' });
-        }}>Se déconnecter</button>
+        <span className="actions">
+          <Link href="/admin/inscriptions">
+            <button type="button" className="ghost small">Voir les inscriptions</button>
+          </Link>
+          <button className="ghost small" onClick={async () => {
+            await fetch('/api/admin/logout', { method: 'POST' });
+            setState({ phase: 'login' });
+          }}>Se déconnecter</button>
+        </span>
       </div>
 
       {note && <div className={`msg ${note.kind}`} style={{ marginTop: 18 }}>{note.text}</div>}

@@ -82,7 +82,8 @@ CREATE TABLE IF NOT EXISTS exchange_participants (
   from_store      TEXT NOT NULL,
   to_store        TEXT NOT NULL,
   preference_rank INTEGER,
-  response        TEXT NOT NULL DEFAULT 'pending'
+  response        TEXT NOT NULL DEFAULT 'pending',
+  responded_at    TIMESTAMPTZ
 );
 
 -- Colonnes retirées après coup : on les supprime si une base plus ancienne
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS exchange_participants (
 ALTER TABLE students  DROP COLUMN IF EXISTS dif_group;
 ALTER TABLE exchanges DROP COLUMN IF EXISTS dif_group;
 ALTER TABLE students  DROP COLUMN IF EXISTS contact;
+ALTER TABLE exchange_participants ADD COLUMN IF NOT EXISTS responded_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_part_exchange ON exchange_participants(exchange_id);
 CREATE INDEX IF NOT EXISTS idx_part_student  ON exchange_participants(student_id);
