@@ -66,16 +66,19 @@ export default function Home() {
   if (code) {
     return (
       <main className="wrap">
-        <Link href="/" className="brand">Darty<b>Swap</b></Link>
+        <div className="topbar">
+          <Link href="/" className="brand">Darty<b>Swap</b></Link>
+          <Link href="/espace"><button type="button" className="ghost small">Résultat</button></Link>
+        </div>
         <h1>Inscription enregistrée</h1>
         <p className="lead">
-          Voici ton code personnel. Il te servira à ouvrir ton espace et à
+          Voici ton code personnel. Il te servira à voir ton résultat et à
           accepter ou refuser un échange. Note-le maintenant : aucun email
           n’est envoyé.
         </p>
         <div className="code">{code}</div>
         <div className="actions">
-          <Link href="/espace"><button>Ouvrir mon espace</button></Link>
+          <Link href="/espace"><button>Voir mon résultat</button></Link>
           <button className="ghost" onClick={() => navigator.clipboard?.writeText(code)}>
             Copier le code
           </button>
@@ -90,7 +93,10 @@ export default function Home() {
 
   return (
     <main className="wrap">
-      <Link href="/" className="brand">Darty<b>Swap</b></Link>
+      <div className="topbar">
+        <Link href="/" className="brand">Darty<b>Swap</b></Link>
+        <Link href="/espace"><button type="button" className="ghost small">Résultat</button></Link>
+      </div>
       <h1>Échange ton Darty</h1>
       <p className="lead">
         Indique ton magasin actuel et ceux qui t’arrangeraient. L’algorithme
@@ -146,7 +152,6 @@ export default function Home() {
           <button type="submit" disabled={busy}>
             {busy ? 'Enregistrement…' : 'M’inscrire'}
           </button>
-          <Link href="/espace" className="sub">J’ai déjà un code</Link>
         </div>
       </form>
 

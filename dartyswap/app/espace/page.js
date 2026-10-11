@@ -34,7 +34,7 @@ function Login({ onDone }) {
       <div className="gate">
         <div style={{ textAlign: 'center' }}>
           <Link href="/" className="brand">Darty<b>Swap</b></Link>
-          <h1 style={{ fontSize: 26, margin: '18px 0 8px' }}>Mon espace</h1>
+          <h1 style={{ fontSize: 26, margin: '18px 0 8px' }}>Mon résultat</h1>
           <p className="sub" style={{ marginBottom: 24 }}>
             Entre le code personnel reçu à l’inscription.
           </p>
@@ -47,7 +47,7 @@ function Login({ onDone }) {
                    value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} />
           </div>
           <button type="submit" disabled={busy} style={{ width: '100%' }}>
-            {busy ? 'Vérification…' : 'Ouvrir mon espace'}
+            {busy ? 'Vérification…' : 'Voir mon résultat'}
           </button>
         </form>
         <p className="foot" style={{ textAlign: 'center' }}>

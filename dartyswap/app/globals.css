@@ -179,3 +179,8 @@ button.small { padding: 7px 13px; font-size: 13.5px; }
 .foot { margin-top: 40px; font-size: 12.5px; color: var(--faint); }
 .prefs { margin: 0; padding-left: 18px; font-size: 14px; color: var(--muted); }
 .row { display: flex; justify-content: space-between; gap: 14px; align-items: center; flex-wrap: wrap; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { opacity: .8; }
+a.brand, a:has(button) { text-decoration: none; }
