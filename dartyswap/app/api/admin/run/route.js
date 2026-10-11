@@ -16,7 +16,6 @@ export async function POST(request) {
 
   const options = {
     ...DEFAULT_OPTIONS,
-    sameDifGroup: Boolean(body.sameDifGroup),
     maxCycleLength: Number(body.maxCycleLength) || DEFAULT_OPTIONS.maxCycleLength,
     // "Relancer l'optimisation" : plus de restarts = meilleur packing.
     restarts: Math.min(2000, Math.max(1, Number(body.restarts) || DEFAULT_OPTIONS.restarts)),
@@ -37,8 +36,8 @@ export async function POST(request) {
 
       for (const ex of result.exchanges) {
         const { rows: er } = await client.query(
-          `INSERT INTO exchanges (run_id, idx, size, dif_group) VALUES ($1,$2,$3,$4) RETURNING id`,
-          [id, ex.index, ex.size, ex.difGroup || null]
+          `INSERT INTO exchanges (run_id, idx, size) VALUES ($1,$2,$3) RETURNING id`,
+          [id, ex.index, ex.size]
         );
         const exchangeId = er[0].id;
         for (let i = 0; i < ex.participants.length; i++) {

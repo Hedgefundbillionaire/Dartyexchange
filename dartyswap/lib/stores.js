@@ -63,8 +63,6 @@ export const STORES_BY_VILLE = STORES.reduce((acc, s) => {
   return acc;
 }, {});
 
-export const DIF_GROUPS = ['DIF01', 'DIF02', 'DIF03', 'DIF04'];
-
 export const MAX_PREFS = 5;
 
 export function isKnownStore(label) {

@@ -10,7 +10,7 @@ export async function GET() {
 
   try {
     const { rows: me } = await query(
-      `SELECT s.id, s.code, s.full_name, s.dif_group, s.current_store,
+      `SELECT s.id, s.code, s.full_name, s.current_store,
               COALESCE(ARRAY_AGG(p.store ORDER BY p.rank)
                        FILTER (WHERE p.store IS NOT NULL), '{}') AS preferences
          FROM students s
@@ -24,7 +24,6 @@ export async function GET() {
     const student = {
       code: me[0].code,
       fullName: me[0].full_name,
-      difGroup: me[0].dif_group,
       currentStore: me[0].current_store,
       preferences: me[0].preferences || [],
     };

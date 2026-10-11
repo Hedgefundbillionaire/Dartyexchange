@@ -47,8 +47,7 @@ CREATE TABLE IF NOT EXISTS students (
   id            SERIAL PRIMARY KEY,
   code          TEXT UNIQUE NOT NULL,
   full_name     TEXT NOT NULL,
-  contact       TEXT,
-  dif_group     TEXT NOT NULL,
+  email         TEXT NOT NULL,
   current_store TEXT NOT NULL,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -72,8 +71,7 @@ CREATE TABLE IF NOT EXISTS exchanges (
   id        SERIAL PRIMARY KEY,
   run_id    INTEGER NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
   idx       INTEGER NOT NULL,
-  size      INTEGER NOT NULL,
-  dif_group TEXT
+  size      INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS exchange_participants (
@@ -86,6 +84,12 @@ CREATE TABLE IF NOT EXISTS exchange_participants (
   preference_rank INTEGER,
   response        TEXT NOT NULL DEFAULT 'pending'
 );
+
+-- Colonnes retirées après coup : on les supprime si une base plus ancienne
+-- les contient encore, pour que le schéma converge sans migration manuelle.
+ALTER TABLE students  DROP COLUMN IF EXISTS dif_group;
+ALTER TABLE exchanges DROP COLUMN IF EXISTS dif_group;
+ALTER TABLE students  DROP COLUMN IF EXISTS contact;
 
 CREATE INDEX IF NOT EXISTS idx_part_exchange ON exchange_participants(exchange_id);
 CREATE INDEX IF NOT EXISTS idx_part_student  ON exchange_participants(student_id);
@@ -129,7 +133,7 @@ export async function withTransaction(fn) {
 /** Roster complet, prêt pour l'algorithme. */
 export async function loadRoster() {
   const { rows } = await query(`
-    SELECT s.id, s.code, s.dif_group, s.current_store,
+    SELECT s.id, s.code, s.current_store,
            COALESCE(
              ARRAY_AGG(p.store ORDER BY p.rank) FILTER (WHERE p.store IS NOT NULL),
              '{}'
@@ -142,7 +146,6 @@ export async function loadRoster() {
   return rows.map((r) => ({
     id: r.id,
     code: r.code,
-    difGroup: r.dif_group,
     currentStore: r.current_store,
     preferences: r.preferences || [],
   }));
@@ -165,10 +168,10 @@ export async function getRun({ publishedOnly }) {
 export async function getRunExchanges(runId, { includeIdentity = false } = {}) {
   const { rows } = await query(
     `SELECT e.id   AS exchange_id,
-            e.idx, e.size, e.dif_group,
+            e.idx, e.size,
             p.position, p.from_store, p.to_store, p.preference_rank, p.response,
             p.student_id,
-            ${includeIdentity ? 's.full_name, s.contact, s.code' : 'NULL AS full_name, NULL AS contact, NULL AS code'}
+            ${includeIdentity ? 's.full_name, s.email, s.code' : 'NULL AS full_name, NULL AS email, NULL AS code'}
        FROM exchanges e
        JOIN exchange_participants p ON p.exchange_id = e.id
        JOIN students s ON s.id = p.student_id
@@ -184,7 +187,6 @@ export async function getRunExchanges(runId, { includeIdentity = false } = {}) {
         id: r.exchange_id,
         index: r.idx,
         size: r.size,
-        difGroup: r.dif_group,
         participants: [],
       });
     }
@@ -196,7 +198,7 @@ export async function getRunExchanges(runId, { includeIdentity = false } = {}) {
       preferenceRank: r.preference_rank,
       response: r.response,
       ...(includeIdentity
-        ? { fullName: r.full_name, contact: r.contact, code: r.code }
+        ? { fullName: r.full_name, email: r.email, code: r.code }
         : {}),
     });
   }

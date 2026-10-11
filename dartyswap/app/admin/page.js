@@ -57,7 +57,6 @@ export default function Admin() {
   const [state, setState] = useState({ phase: 'loading' });
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState(null);
-  const [sameDifGroup, setSameDifGroup] = useState(false);
   const [maxCycleLength, setMaxCycleLength] = useState(4);
 
   const load = useCallback(async () => {
@@ -152,33 +151,16 @@ export default function Admin() {
           </select>
         </div>
 
-        <div className="field">
-          <label style={{ display: 'flex', gap: 9, alignItems: 'flex-start', fontWeight: 400 }}>
-            <input type="checkbox" checked={sameDifGroup} style={{ width: 'auto', marginTop: 3 }}
-                   onChange={(e) => setSameDifGroup(e.target.checked)} />
-            <span>
-              <strong style={{ display: 'block', fontSize: 13 }}>
-                Limiter les échanges au même groupe DIF
-              </strong>
-              <span className="hint">
-                Désactivé par défaut : la règle métier DIF01–DIF04 n’est pas
-                définie. L’activer réduit nettement le nombre d’échanges
-                possibles.
-              </span>
-            </span>
-          </label>
-        </div>
-
         <div className="actions">
           <button disabled={busy !== ''}
                   onClick={() => post('/api/admin/run',
-                    { sameDifGroup, maxCycleLength, restarts: 240 },
+                    { maxCycleLength, restarts: 240 },
                     'Algorithme exécuté. Les résultats ne sont pas encore publiés.')}>
             {busy.startsWith('Algorithme') ? 'Calcul…' : 'Lancer l’algorithme'}
           </button>
           <button className="ghost" disabled={busy !== '' || !run}
                   onClick={() => post('/api/admin/run',
-                    { sameDifGroup, maxCycleLength, restarts: 1600 },
+                    { maxCycleLength, restarts: 1600 },
                     'Optimisation relancée avec plus d’itérations.')}>
             Relancer l’optimisation
           </button>
@@ -258,7 +240,7 @@ export default function Admin() {
                     <span className="to">{p.toStore}</span>
                     <span className="sub">(choix n°{p.preferenceRank})</span>
                   </div>
-                  {p.contact && <p className="hint" style={{ margin: '2px 0 0' }}>{p.contact}</p>}
+                  {p.email && <p className="hint" style={{ margin: '2px 0 0' }}>{p.email}</p>}
                 </div>
               ))}
               <p className="sub" style={{ marginTop: 10, marginBottom: 0 }}>

@@ -9,24 +9,11 @@
  *   A prend le Darty de B, B prend le Darty de C, C prend le Darty de A.
  * Chaque Darty reste occupé par exactement une personne : c'est une rotation.
  *
- * Groupes DIF01 à DIF04
- * ---------------------
- * Le groupe DIF est porté comme une donnée déclarée par l'étudiant : il est
- * stocké, affiché et exporté, mais il ne restreint pas le calcul. La règle
- * métier associée n'est pas définie ici.
- *
- * L'option `sameDifGroup` est prête si cette règle doit un jour s'appliquer :
- * la passer à true impose que tous les participants d'un cycle partagent le
- * même groupe. Elle est désactivée par défaut.
- *
- * Les effectifs par magasin sont de toute façon préservés : tout échange est
- * une permutation, donc aucun magasin ne gagne ni ne perd de poste.
+ * Les effectifs par magasin sont préservés : tout échange est une permutation,
+ * donc aucun magasin ne gagne ni ne perd de poste.
  */
 
 export const DEFAULT_OPTIONS = {
-  // Règle DIF non définie : désactivée. Passer à true pour imposer que tous
-  // les participants d'un cycle partagent le même groupe DIF.
-  sameDifGroup: false,
   // Longueur maximale d'un cycle (2 = échange simple, 3+ = échange multiple).
   maxCycleLength: 4,
   // Nombre de tentatives randomisées pour améliorer le packing.
@@ -154,7 +141,7 @@ function packCycles(cycles, scores, studentCount, restarts) {
 /**
  * Point d'entrée.
  *
- * students: [{ id, code, difGroup, currentStore, preferences: [store, ...] }]
+ * students: [{ id, code, currentStore, preferences: [store, ...] }]
  * renvoie { exchanges, stats, options }
  */
 export function computeExchanges(students, userOptions = {}) {
@@ -188,7 +175,6 @@ export function computeExchanges(students, userOptions = {}) {
       if (!holders) return;
       for (const j of holders) {
         if (j === i) continue;
-        if (options.sameDifGroup && list[i].difGroup !== list[j].difGroup) continue;
         adjacency[i].push(j);
         const mapKey = `${i}:${j}`;
         if (!prefRank.has(mapKey)) prefRank.set(mapKey, rank);
@@ -208,7 +194,6 @@ export function computeExchanges(students, userOptions = {}) {
       const target = list[cycle[(i + 1) % cycle.length]];
       return {
         studentId: student.id,
-        difGroup: student.difGroup,
         fromStore: student.currentStore,
         toStore: target.currentStore,
         preferenceRank: (prefRank.get(`${cycle[i]}:${cycle[(i + 1) % cycle.length]}`) ?? 0) + 1,
@@ -218,7 +203,6 @@ export function computeExchanges(students, userOptions = {}) {
       index: n + 1,
       size: cycle.length,
       type: cycle.length === 2 ? 'simple' : 'multiple',
-      difGroup: participants[0].difGroup,
       participants,
     };
   });

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import './globals.css';
-import { STORES_BY_VILLE, storeLabel, OTHER_STORE, DIF_GROUPS, MAX_PREFS } from '../lib/stores';
+import { STORES_BY_VILLE, storeLabel, OTHER_STORE, MAX_PREFS } from '../lib/stores';
 
 const EMPTY_PREFS = Array(MAX_PREFS).fill('');
 
@@ -26,8 +26,7 @@ function StoreOptions() {
 
 export default function Home() {
   const [fullName, setFullName] = useState('');
-  const [contact, setContact] = useState('');
-  const [difGroup, setDifGroup] = useState('');
+  const [email, setEmail] = useState('');
   const [currentStore, setCurrentStore] = useState('');
   const [currentOther, setCurrentOther] = useState('');
   const [prefs, setPrefs] = useState(EMPTY_PREFS);
@@ -57,8 +56,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fullName,
-          contact,
-          difGroup,
+          email,
           currentStore: resolvedCurrent,
           preferences: resolvedPrefs,
         }),
@@ -118,22 +116,15 @@ export default function Home() {
         </div>
 
         <div className="field">
-          <label htmlFor="c">Contact (optionnel)</label>
-          <input id="c" type="text" maxLength={120} value={contact}
-                 placeholder="Téléphone ou email, pour te joindre si besoin"
-                 onChange={(e) => setContact(e.target.value)} />
+          <label htmlFor="c">Adresse mail</label>
+          <input id="c" type="email" required maxLength={120} value={email}
+                 placeholder="prenom.nom@hec.edu"
+                 onChange={(e) => setEmail(e.target.value)} />
           <p className="hint">
-            Jamais utilisé pour t’envoyer quoi que ce soit, et jamais affiché aux
-            autres étudiants. Visible uniquement par l’administrateur.
+            Sert à t’identifier et à te joindre si l’administration en a besoin.
+            Jamais utilisée pour t’envoyer quoi que ce soit, et jamais affichée
+            aux autres étudiants.
           </p>
-        </div>
-
-        <div className="field">
-          <label htmlFor="d">Groupe DIF</label>
-          <select id="d" required value={difGroup} onChange={(e) => setDifGroup(e.target.value)}>
-            <option value="">Choisir…</option>
-            {DIF_GROUPS.map((g) => <option key={g} value={g}>{g}</option>)}
-          </select>
         </div>
 
         <div className="field">

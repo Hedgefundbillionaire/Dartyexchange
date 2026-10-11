@@ -6,8 +6,8 @@ function check(name, cond, extra='') {
   else { fail++; console.log(`  FAIL ${name} ${extra}`); }
 }
 
-function S(id, cur, prefs, dif='DIF01') {
-  return { id, code: id, difGroup: dif, currentStore: cur, preferences: prefs };
+function S(id, cur, prefs) {
+  return { id, code: id, currentStore: cur, preferences: prefs };
 }
 
 // 1. Échange simple A<->B
@@ -56,19 +56,6 @@ console.log('\n3. Aucun échange possible');
   check('0 échange', r.exchanges.length === 0);
   check('0 mobile', r.stats.studentsCanMove === 0);
   check('2 demandeurs', r.stats.studentsRequesting === 2);
-}
-
-// 4. Contrainte DIF respectée
-console.log('\n4. Contrainte même groupe DIF');
-{
-  const roster = [
-    S('A','Darty Créteil',['Darty République'],'DIF01'),
-    S('B','Darty République',['Darty Créteil'],'DIF03'),
-  ];
-  const on = computeExchanges(roster, { sameDifGroup: true });
-  check('bloqué si groupes differents', on.exchanges.length === 0);
-  const off = computeExchanges(roster, { sameDifGroup: false });
-  check('autorisé si contrainte levée', off.exchanges.length === 1);
 }
 
 // 5. Cycles disjoints : un étudiant ne peut pas être dans 2 échanges
@@ -171,8 +158,6 @@ console.log('\n12. Même magasin, deux occupants');
 console.log('\n13. Performance (150 étudiants)');
 {
   const stores = Array.from({length:36},(_,i)=>`Darty ${i}`);
-  // DIF décorrélé de l'index magasin (sinon aucun échange intra-groupe
-  // n'est structurellement possible et le test ne teste rien).
   const rand = (() => { let a = 12345; return () => (a = (a*1103515245+12345) & 0x7fffffff) / 0x7fffffff; })();
   const roster = [];
   for (let i=0;i<150;i++){
@@ -182,7 +167,7 @@ console.log('\n13. Performance (150 étudiants)');
       const c = stores[Math.floor(rand()*36)];
       if (c !== cur && !prefs.includes(c)) prefs.push(c);
     }
-    roster.push(S('E'+i, cur, prefs, 'DIF0'+(1+Math.floor(rand()*4))));
+    roster.push(S('E'+i, cur, prefs));
   }
   const t0 = Date.now();
   const r = computeExchanges(roster);
@@ -199,24 +184,12 @@ console.log('\n13. Performance (150 étudiants)');
     if (JSON.stringify(f)!==JSON.stringify(t)) okPerm = false;
   }
   check('toutes rotations valides', okPerm);
-  // Avec la règle DIF activée, les cycles doivent être homogènes.
-  const rDif = computeExchanges(roster, { sameDifGroup: true });
-  let okDif = true;
-  for (const e of rDif.exchanges) {
-    if (new Set(e.participants.map(p=>p.difGroup)).size !== 1) okDif = false;
-  }
-  check('DIF homogène si la règle est activée', okDif);
-  console.log(`     avec règle DIF : ${rDif.stats.studentsCanMove}/150 mobiles`);
   let okWish = true;
   const byId = new Map(roster.map(s=>[s.id,s]));
   for (const e of r.exchanges) for (const p of e.participants) {
     if (!byId.get(p.studentId).preferences.includes(p.toStore)) okWish = false;
   }
   check('chaque mouvement correspond à un voeu', okWish);
-  // contrainte DIF levée => au moins autant de mobiles
-  check('la règle DIF ne peut que réduire la mobilité',
-        rDif.stats.studentsCanMove <= r.stats.studentsCanMove,
-        `${rDif.stats.studentsCanMove} > ${r.stats.studentsCanMove}`);
 }
 
 console.log(`\n${pass} passés, ${fail} échoués`);

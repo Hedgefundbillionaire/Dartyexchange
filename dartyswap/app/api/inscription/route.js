@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { query, withTransaction, isConfigured } from '../../../lib/db';
 import { generateStudentCode, createSession } from '../../../lib/session';
-import { OTHER_STORE, DIF_GROUPS, MAX_PREFS } from '../../../lib/stores';
+import { OTHER_STORE, MAX_PREFS } from '../../../lib/stores';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,22 +28,20 @@ export async function POST(request) {
   }
 
   const fullName = String(body.fullName || '').trim().replace(/\s+/g, ' ');
-  const contact = String(body.contact || '').trim();
-  const difGroup = String(body.difGroup || '').trim();
+  const email = String(body.email || '').trim().toLowerCase();
   const currentStore = cleanStore(body.currentStore);
   const rawPrefs = Array.isArray(body.preferences) ? body.preferences : [];
 
   if (fullName.length < 2 || fullName.length > 100) {
     return NextResponse.json({ error: 'Indique ton nom complet.' }, { status: 400 });
   }
-  if (!DIF_GROUPS.includes(difGroup)) {
-    return NextResponse.json({ error: 'Choisis ton groupe DIF.' }, { status: 400 });
+  // Adresse obligatoire : elle identifie l'étudiant et permet à
+  // l'administration de le joindre. Aucun email n'est jamais envoyé par l'app.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120) {
+    return NextResponse.json({ error: 'Indique une adresse mail valide.' }, { status: 400 });
   }
   if (!currentStore) {
     return NextResponse.json({ error: 'Indique ton Darty actuel.' }, { status: 400 });
-  }
-  if (contact.length > 120) {
-    return NextResponse.json({ error: 'Contact trop long.' }, { status: 400 });
   }
 
   // "Autre Darty" est un libellé d'interface : il faut le nom réel du magasin.
@@ -78,11 +76,11 @@ export async function POST(request) {
       for (let attempt = 0; attempt < 5; attempt++) {
         code = generateStudentCode();
         const res = await client.query(
-          `INSERT INTO students (code, full_name, contact, dif_group, current_store)
-           VALUES ($1,$2,$3,$4,$5)
+          `INSERT INTO students (code, full_name, email, current_store)
+           VALUES ($1,$2,$3,$4)
            ON CONFLICT (code) DO NOTHING
            RETURNING id, code`,
-          [code, fullName, contact || null, difGroup, currentStore]
+          [code, fullName, email, currentStore]
         );
         if (res.rows[0]) { row = res.rows[0]; break; }
       }

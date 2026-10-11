@@ -23,7 +23,7 @@ export async function GET() {
 
     const header = [
       'echange', 'taille', 'type', 'statut', 'position',
-      'nom', 'code', 'contact', 'groupe_dif',
+      'nom', 'code', 'email',
       'darty_actuel', 'darty_attribue', 'rang_preference', 'reponse',
     ];
 
@@ -32,7 +32,7 @@ export async function GET() {
       for (const p of e.participants) {
         lines.push([
           e.index, e.size, e.size === 2 ? 'simple' : 'multiple', e.status, p.position + 1,
-          p.fullName, p.code, p.contact, e.difGroup,
+          p.fullName, p.code, p.email,
           p.fromStore, p.toStore, p.preferenceRank, p.response,
         ].map(csvCell).join(','));
       }

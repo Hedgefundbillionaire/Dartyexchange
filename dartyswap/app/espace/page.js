@@ -115,7 +115,7 @@ export default function Espace() {
       <div className="card">
         <h3>Ma situation</h3>
         <p className="sub" style={{ margin: '2px 0 12px' }}>
-          Groupe {student.difGroup} · actuellement à <strong>{student.currentStore}</strong>
+          Actuellement à <strong>{student.currentStore}</strong>
         </p>
         <h3>Mes souhaits</h3>
         <ol className="prefs">
